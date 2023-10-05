@@ -2,22 +2,12 @@ import mongoose from 'mongoose';
 import { Hooks } from '../../DB/hooks';
 export default (connection: any) => {
     const schema =  new connection.Schema({
-        company: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Company',
-            default:null,
-            require: true
-        },
-        role: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Role',
-            require: true
-        },
         profileImage: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Media',
             default:null
         },
+        username:{type: String, require: true },
         name: { type: String, require: true },
         email: { type: String, require: true },
         password: { type: String, require: true },

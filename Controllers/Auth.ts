@@ -1,4 +1,4 @@
-import { RolePermissionModel, UserModel } from "../Models/index";
+import { UserModel } from "../Models/index";
 import bcrypt from 'bcrypt'
 import { generateToken } from "../JWT";
 import ServerResponseClass from "../ServerResponse/ServerResponse";
@@ -10,6 +10,26 @@ const response = new ServerResponseClass();
 // Format the current time as a string
 
 export default {
+    register: async (req:any, res:any) => {
+        try {
+            const { username, email, password } = req.body;
+            const existingUser = await UserModel.findOne({ email });
+            if (existingUser) {
+                return res.status(400).json({ message: 'Email already exists' });
+            }
+            const hashedPassword = await bcrypt.hash(password, 10);
+            const newUser = new UserModel({
+                username,
+                email,
+                password: hashedPassword,
+            });
+            await newUser.save();
+            response.handleSuccess(res,'Registration successful');
+        } catch (error) {
+            console.error(error);
+            response.somethingWentWrong(res)
+        }
+    },
     login: async (req: any, res: any) => {
         const { email, password } = req.body;
         try {
@@ -24,22 +44,11 @@ export default {
                     const token = generateToken(User);
                     const userDetail = await UserModel.findOne(
                         { _id: User._id },
-                        { _id: 1, name: 1, role: 1, company: 1, email: 1,profileImage:1 }
-                    ).populate('role', { _id: 1, name: 1,code:1 });
-
+                        { _id: 1, name: 1, role: 1, company: 1, email: 1, profileImage: 1 }
+                    ).populate('role', { _id: 1, name: 1, code: 1 });
                     if (userDetail.profileImage !== null) {
                         await userDetail.populate('profileImage', { _id: 1, url: 1, mimetype: 1 });
                     }
-                    if (userDetail.company !== null) {
-                        await userDetail.populate('company', { _id: 1, name: 1 });
-                    }
-                    const permission = await RolePermissionModel.find({ role: userDetail.role?._id, status: 'active' }, { _id: 1, role: 1, permission: 1 }).populate('permission', { _id: 1, controller: 1, action: 1 });
-                    const Permissions = await permission.map((permission: any) => {
-                        return {
-                            controller: permission?.permission?.controller,
-                            action: permission?.permission?.action,
-                        }
-                    });
                     response.handleSuccess(res, { userDetail, token, Permissions }, 'User LoggedIn.');
                 }
             }
