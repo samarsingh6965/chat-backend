@@ -4,18 +4,14 @@ import { generateToken } from "../JWT";
 import ServerResponseClass from "../ServerResponse/ServerResponse";
 const response = new ServerResponseClass();
 
-// Get the current time
-
-
-// Format the current time as a string
-
 export default {
-    register: async (req:any, res:any) => {
+    register: async (req: any, res: any) => {
         try {
             const { username, email, password } = req.body;
-            const existingUser = await UserModel.findOne({ email });
-            if (existingUser) {
-                return res.status(400).json({ message: 'Email already exists' });
+            const existingEmail = await UserModel.findOne({ email });
+            const existingUsername = await UserModel.findOne({ username });
+            if (existingEmail || existingUsername) {
+                return res.status(400).json({ message: 'Email or Username already exists' });
             }
             const hashedPassword = await bcrypt.hash(password, 10);
             const newUser = new UserModel({
@@ -24,18 +20,31 @@ export default {
                 password: hashedPassword,
             });
             await newUser.save();
-            response.handleSuccess(res,'Registration successful');
+            response.handleSuccess(res, newUser, 'Registration successful');
         } catch (error) {
             console.error(error);
             response.somethingWentWrong(res)
         }
     },
-    login: async (req: any, res: any) => {
-        const { email, password } = req.body;
+    getUsername: async (req:any,res:any) => {
         try {
-            const User = await UserModel.findOne({ email });
+            const Usernames = await UserModel.find({ status: { $ne: 'deleted' } },{username:1,email:1});
+            if (!Usernames) {
+                response.handleNotFound(res, 'No Usernames Found');
+            } else {
+                response.handleSuccess(res,Usernames,'Usernames Fetched')
+            }
+        } catch (error) {
+            console.log("Exception", error);
+            return response.somethingWentWrong(res);
+        }
+    },
+    login: async (req: any, res: any) => {
+        const { username, password } = req.body;
+        try {
+            let User = await UserModel.findOne({ email: username }) || await UserModel.findOne({ username: username });
             if (!User) {
-                response.handleNotFound(res, 'Incorrect Email.');
+                response.handleNotFound(res, 'Incorrect Email Or Username');
             } else {
                 const passwordMatch = await bcrypt.compare(password, User.password);
                 if (!passwordMatch) {
@@ -44,12 +53,12 @@ export default {
                     const token = generateToken(User);
                     const userDetail = await UserModel.findOne(
                         { _id: User._id },
-                        { _id: 1, name: 1, role: 1, company: 1, email: 1, profileImage: 1 }
-                    ).populate('role', { _id: 1, name: 1, code: 1 });
+                        { _id: 1, name: 1, email: 1, profileImage: 1 ,username:1}
+                    );
                     if (userDetail.profileImage !== null) {
                         await userDetail.populate('profileImage', { _id: 1, url: 1, mimetype: 1 });
                     }
-                    response.handleSuccess(res, { userDetail, token, Permissions }, 'User LoggedIn.');
+                    response.handleSuccess(res, { userDetail, token }, 'User LoggedIn.');
                 }
             }
         } catch (error) {

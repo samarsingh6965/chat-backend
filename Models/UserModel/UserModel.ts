@@ -12,17 +12,7 @@ export default (connection: any) => {
         email: { type: String, require: true },
         password: { type: String, require: true },
         created_at: { type: Date, default: Date.now() },
-        created_by: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-            require: true
-        },
         modified_at: { type: Date, default: Date.now() },
-        modified_by: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-            require: true
-        },
         status: {
             "type": "string",
             "enum": ["active", "inactive", "deleted"],
