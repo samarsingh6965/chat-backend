@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
-const {PORT,DB_URL,JWT_SECRET} = process.env;
+const {APP_PORT,DB_HOST,DB_NAME,JWT_SECRET}:any = process.env;
 
-export const ENV = {...process.env, ...{PORT,DB_URL,JWT_SECRET}}
+export const ENV = {...process.env, ...{APP_PORT,DB_HOST,DB_NAME,JWT_SECRET}}
