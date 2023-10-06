@@ -7,32 +7,33 @@ const response = new ServerResponseClass();
 export default {
     register: async (req: any, res: any) => {
         try {
-            const { username, email, password } = req.body;
+            const { username, email, password, name, gender } = req.body;
             const existingEmail = await UserModel.findOne({ email });
             const existingUsername = await UserModel.findOne({ username });
             if (existingEmail || existingUsername) {
                 return res.status(400).json({ message: 'Email or Username already exists' });
             }
             const hashedPassword = await bcrypt.hash(password, 10);
-            const newUser = new UserModel({
+            const newUser = await new UserModel({
+                gender,
+                name,
                 username,
                 email,
                 password: hashedPassword,
-            });
-            await newUser.save();
+            }).save();
             response.handleSuccess(res, newUser, 'Registration successful');
         } catch (error) {
             console.error(error);
             response.somethingWentWrong(res)
         }
     },
-    getUsername: async (req:any,res:any) => {
+    getUsername: async (req: any, res: any) => {
         try {
-            const Usernames = await UserModel.find({ status: { $ne: 'deleted' } },{username:1,email:1});
+            const Usernames = await UserModel.find({ status: { $ne: 'deleted' } }, { username: 1, email: 1 });
             if (!Usernames) {
                 response.handleNotFound(res, 'No Usernames Found');
             } else {
-                response.handleSuccess(res,Usernames,'Usernames Fetched')
+                response.handleSuccess(res, Usernames, 'Usernames Fetched')
             }
         } catch (error) {
             console.log("Exception", error);
@@ -53,7 +54,7 @@ export default {
                     const token = generateToken(User);
                     const userDetail = await UserModel.findOne(
                         { _id: User._id },
-                        { _id: 1, name: 1, email: 1, profileImage: 1 ,username:1}
+                        { _id: 1, name: 1, email: 1, profileImage: 1, username: 1, gender: 1 }
                     );
                     if (userDetail.profileImage !== null) {
                         await userDetail.populate('profileImage', { _id: 1, url: 1, mimetype: 1 });
