@@ -9,6 +9,7 @@ export default (connection: any) => {
         },
         username: { type: String, required: true },
         name: { type: String, required: true },
+        bio: { type: String, required: true, default:null},
         gender: {
             type: String,
             required: true,
