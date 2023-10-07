@@ -18,12 +18,27 @@ export default {
         }
     },
     getUsers: async (req: any, res: any) => {
+        const { search } = req.query;
         try {
-            const Users = await UserModel.find({status:"active",_id:{$ne:req.user.userId}},{_id:1,name:1,profileImage:1,gender:1,bio:1}).populate('profileImage', { _id: 1, url: 1, mimetype: 1 });
+            const filter = {
+                status: "active",
+                _id: { $ne: req.user.userId },
+                $or: [
+                    { name: { $regex: search, $options: 'i' } },
+                    { username: { $regex: search, $options: 'i' } }
+                ]
+            };
+            const Users = await UserModel.find(filter, {
+                _id: 1,
+                name: 1,
+                profileImage: 1,
+                gender: 1,
+                username:1
+            }).populate('profileImage', { _id: 1, url: 1, mimetype: 1 });
             response.handleSuccess(res, Users, 'Users Fetched');
         } catch (error) {
             console.error(error);
-            response.somethingWentWrong(res)
+            response.somethingWentWrong(res);
         }
     },
 }
