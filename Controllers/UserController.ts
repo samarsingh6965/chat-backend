@@ -41,4 +41,21 @@ export default {
             response.somethingWentWrong(res);
         }
     },
+    getUserByUserId: async (req: any, res: any) => {
+        const { _id } = req.query;
+        try {
+            const Users = await UserModel.findOne({_id,status:'active'}, {
+                _id: 1,
+                name: 1,
+                profileImage: 1,
+                gender: 1,
+                username:1,
+                bio:1
+            }).populate('profileImage', { _id: 1, url: 1, mimetype: 1 });
+            response.handleSuccess(res, Users, 'Users Fetched');
+        } catch (error) {
+            console.error(error);
+            response.somethingWentWrong(res);
+        }
+    },
 }
