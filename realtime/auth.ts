@@ -5,7 +5,7 @@ export default  async(socket:any, io:any)=>{
     const token = socket.handshake.headers.token;
     if (token) {
         try {
-            socket.userInfo = await jwt.verify(token, ENV.JWT_SECRET);
+            socket.userInfo = jwt.verify(token, ENV.JWT_SECRET);
             let d = await UserRealtimeModel.findOneAndUpdate(
                 {
                     userId:socket.userInfo.userId,
@@ -16,7 +16,7 @@ export default  async(socket:any, io:any)=>{
                 },
                 {new:true,upsert: true }
             );
-            console.log("UserInfo:",socket.userInfo.userId, d);
+            // console.log("UserInfo:",socket.userInfo.userId, d);
         } catch (error:any) {
             console.error('Token verification error:', error.message);
             socket.disconnect(); // Reject the connection

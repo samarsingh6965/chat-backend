@@ -8,6 +8,7 @@ export default (connection:any)=>{
             default:null
         },
         connectionId:String,
+        activeChat:String,
         status: {type:Boolean, default:true},
         disconnectedAt:{type:Date, default:null},
         lastActiveAt:{type:Date, default:Date.now},
