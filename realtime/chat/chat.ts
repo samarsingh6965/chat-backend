@@ -5,7 +5,7 @@ export default (socket: any, io: any) => {
         let userfrom = await UserRealtimeModel.findOne({ userId: data.from }, { activeChat: 1 });
         if (userto) {
             let d = await new MessageModel(data).save()
-            if(userto.connectionId === userfrom.activeChat){
+            if(data.to === userfrom.activeChat){
                 io.to(userto.connectionId).emit('typing', socket.userInfo._id);
             }
         }
@@ -16,7 +16,7 @@ export default (socket: any, io: any) => {
         let userfrom = await UserRealtimeModel.findOne({ userId: data.from }, { activeChat: 1 });
         if (userto) {
             let d = await new MessageModel(data).save()
-            if(userto.connectionId === userfrom.activeChat){
+            if(data.to === userfrom.activeChat){
                 io.to(userto.connectionId).emit('stop_typing', socket.userInfo._id);
             }
         }
@@ -28,7 +28,7 @@ export default (socket: any, io: any) => {
         console.log('typ',userto,userfrom)
         if (userto) {
             let d = await new MessageModel(data).save()
-            if(userto.connectionId === userfrom.activeChat){
+            if(data.to === userfrom.activeChat){
                 io.to(userto.connectionId).emit('message', d);
             }else{
                 io.to(userto.connectionId).emit('notify', d);
