@@ -13,8 +13,7 @@ app.use('/api',Api);
 // realtime
 const server = Http.createServer(app);
 
-const io:any = Realtime(server);
+Realtime(server);
 server.listen(ENV.APP_PORT, () => {
     console.log(`Server is running on port ${ENV.APP_PORT}`);
 });
-export {io};

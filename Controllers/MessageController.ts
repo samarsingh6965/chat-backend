@@ -8,7 +8,7 @@ export default {
         try {
             const {from,to} = req.query;
             const tasks = await MessageModel.find({from:from,to:to});
-            response.handleSuccess(res, 'messages fetched Successfully', tasks);
+            response.handleSuccess(res, tasks, 'messages fetched Successfully');
         } catch (error) {
             console.log("Exception", error);
             response.somethingWentWrong(res)
