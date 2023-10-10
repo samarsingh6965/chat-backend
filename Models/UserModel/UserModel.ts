@@ -17,8 +17,8 @@ export default (connection: any) => {
         },
         email: { type: String, required: true },
         password: { type: String, required: true },
-        created_at: { type: Date, default: Date.now() },
-        modified_at: { type: Date, default: Date.now() },
+        created_at: { type: Date, default: Date.now },
+        modified_at: { type: Date, default: Date.now },
         status: {
             type: String,
             enum: ['active', 'inactive', 'deleted'],

@@ -8,15 +8,15 @@ export default  async(socket:any, io:any)=>{
             socket.userInfo = await jwt.verify(token, ENV.JWT_SECRET);
             let d = await UserRealtimeModel.findOneAndUpdate(
                 {
-                    user:socket.userInfo.userId,
+                    userId:socket.userInfo.id,
                 },
                 {
-                    user:socket.userInfo.userId,
+                    userId:socket.userInfo.id,
                     connectionId:socket.id
                 },
                 {new:true,upsert: true }
             );
-            console.log('Client Connected',d)   
+            console.log("UserInfo:",socket.userInfo.id, d);
         } catch (error:any) {
             console.error('Token verification error:', error.message);
             socket.disconnect(); // Reject the connection

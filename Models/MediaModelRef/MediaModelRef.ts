@@ -14,13 +14,13 @@ export default (connection: any) => {
             type: String,
             default:null
         },
-        created_at: { type: Date, default: Date.now()},
+        created_at: { type: Date, default: Date.now},
         created_by: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
             require: true
         },
-        modified_at: { type: Date, default: Date.now()},
+        modified_at: { type: Date, default: Date.now},
         modified_by: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',

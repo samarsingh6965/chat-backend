@@ -2,7 +2,7 @@ import express from 'express';
 import {ENV} from "./dotenv";
 import cors from 'cors';
 import Api from './Api';
-import Realtime from "./Realtime";
+import Realtime from "./realtime";
 import Http from "http";
 
 const app = express();
