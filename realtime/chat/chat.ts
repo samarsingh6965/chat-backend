@@ -32,6 +32,7 @@ export default (socket: any, io: any) => {
                 },
                 {
                     lastMessage:data._id,
+                    seen:false
                 },
                 {new:true,upsert: true }
             );
