@@ -28,7 +28,7 @@ export default (socket: any, io: any) => {
             let d = await NotificationModel.findOneAndUpdate(
                 {
                     from:data.from,
-                    to:data.from,
+                    to:data.to,
                 },
                 {
                     lastMessage:data._id,
