@@ -13,6 +13,7 @@ export default (connection:any)=>{
             require:true 
         },
         message: {type:String,require:true},
+        seen: {type:String,default:false},
         timestamp: { type: Date, default: Date.now },
     }));
 };
