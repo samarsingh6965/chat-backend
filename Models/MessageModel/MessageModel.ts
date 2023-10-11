@@ -5,12 +5,12 @@ export default (connection:any)=>{
         from: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
-            default:null
+            require:true        
         },
         to:{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
-            default:null
+            require:true 
         },
         message: {type:String,require:true},
         timestamp: { type: Date, default: Date.now },
