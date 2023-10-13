@@ -1,12 +1,16 @@
-import {NotificationModel  } from "../Models/index";
+import { NotificationModel } from "../Models/index";
 import ServerResponseClass from "../ServerResponse/ServerResponse";
 const response = new ServerResponseClass();
 
 export default {
-    getNotifications: async (req:any, res:any) => {
+    getNotifications: async (req: any, res: any) => {
         try {
-            const {to} = req.query;
-            const tasks = await NotificationModel.find({to:to});
+            const { to } = req.query;
+            const tasks = await NotificationModel.find({ to: to }).populate({
+                path: 'from',
+                select: '_id name gender bio profileImage',
+                populate: { path: 'profileImage', select: '_id url mimetype' },
+            });;
             response.handleSuccess(res, tasks, 'Notifications fetched Successfully');
         } catch (error) {
             console.log("Exception", error);
@@ -17,8 +21,8 @@ export default {
         try {
             const { to } = req.query;
             const updatedNotifications = await NotificationModel.updateMany(
-                { to: to,},
-                { $set: {seen:true}}
+                { to: to, },
+                { $set: { seen: true } }
             );
             response.handleSuccess(res, updatedNotifications, 'Notifications updated Successfully');
         } catch (error) {

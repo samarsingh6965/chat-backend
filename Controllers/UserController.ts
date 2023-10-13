@@ -12,6 +12,7 @@ export default {
             if (updatedUser.profileImage !== null) {
                 await updatedUser.populate('profileImage', { _id: 1, url: 1, mimetype: 1 });
             }
+            console.log(updatedUser)
             response.handleSuccess(res, updatedUser, 'Details Updated');
         } catch (error) {
             console.error(error);
