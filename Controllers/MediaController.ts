@@ -1,6 +1,8 @@
 import { MediaModel } from "../Models/index";
+import {deletefile} from '../FileUpload/fileDelete'
 import ServerResponseClass from "../ServerResponse/ServerResponse";
 const response = new ServerResponseClass();
+
 
 export default {
     createMedia: async (req: any, res: any) => {
@@ -18,6 +20,7 @@ export default {
     deleteMediaPermanent: async (req: any, res: any) => {
         try {
             const deletedMedia = await MediaModel.findByIdAndDelete(req.body._id, { new: true });
+            await deletefile(deletedMedia)
             response.handleSuccess(res, {_id:deletedMedia._id}, 'File Deleted Successfully.')
         } catch (error) {
             console.error(error);
