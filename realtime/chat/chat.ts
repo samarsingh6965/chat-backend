@@ -31,7 +31,7 @@ export default (socket: any, io: any) => {
                     seen: false
                 },
                 { new: true, upsert: true }
-            );
+            ).populate('from',{name:1}).populate('lastMessage',{message:1});
             io.to(userto.connectionId).emit('notification', d);
             // console.log('notification',d);
         }

@@ -19,7 +19,7 @@ export default {
             response.somethingWentWrong(res)
         }
     },
-    getUsers: async (req:any, res:any) => {
+    getUsers: async (req: any, res: any) => {
         const { search } = req.query;
         const userId = new mongoose.Types.ObjectId(req.user.userId);
         try {
@@ -36,17 +36,17 @@ export default {
                 ],
             });
             const uniqueUserIds = [...new Set([...chatHistory, ...chatHistory2])];
-            let filter:any;
-            if(search){
+            let filter: any;
+            if (search) {
                 filter = {
                     status: "active",
-                    _id: { $ne: userId},
+                    _id: { $ne: userId },
                     $or: [
                         { name: { $regex: search, $options: 'i' } },
                         { username: { $regex: search, $options: 'i' } }
                     ]
                 };
-            }else{
+            } else {
                 filter = {
                     status: "active",
                     _id: { $ne: userId, $in: uniqueUserIds },
@@ -56,16 +56,15 @@ export default {
                     ]
                 };
             }
-            
+
             const Users = await UserModel.find(filter, {
                 _id: 1,
                 name: 1,
                 profileImage: 1,
                 gender: 1,
                 username: 1,
-                bio:1
+                bio: 1
             }).populate('profileImage', { _id: 1, url: 1, mimetype: 1 });
-            // Now, let's find the last message for each user
             const lastMessages = await MessageModel.aggregate([
                 {
                     $match: {
@@ -86,8 +85,8 @@ export default {
                 },
             ]);
             // Combine the user data and last messages
-            const usersWithLastMessages = Users.map((user:any) => {
-                const lastMessage = lastMessages.find((message:any) => message._id.equals(user._id));
+            const usersWithLastMessages = await Users.map((user: any) => {
+                const lastMessage = lastMessages.find((message: any) => message._id.equals(user._id));
                 return {
                     ...user.toObject(),
                     lastMessage: lastMessage ? lastMessage.lastMessage : null
@@ -99,7 +98,7 @@ export default {
             response.somethingWentWrong(res);
         }
     },
-    
+
     getUserByUserId: async (req: any, res: any) => {
         const { _id } = req.query;
         try {
@@ -110,7 +109,10 @@ export default {
                 gender: 1,
                 username: 1,
                 bio: 1
-            }).populate('profileImage', { _id: 1, url: 1, mimetype: 1 });
+            });
+            if (Users.profileImage) {
+                await Users.populate('profileImage', { _id: 1, url: 1, mimetype: 1 })
+            }
             response.handleSuccess(res, Users, 'Users Fetched');
         } catch (error) {
             console.error(error);

@@ -26,7 +26,7 @@ const generateToken = (user: User): string => {
 };
 
 // Verify a JWT token
-const verifyToken = (req: any, res: Response, next: NextFunction): void => {
+const verifyToken = (req: any, res: Response, next: NextFunction) => {
     const token = req.header('token');
     // console.log(token)
     if (!token) {
