@@ -11,7 +11,7 @@ export default {
             const existingEmail = await UserModel.findOne({ email });
             const existingUsername = await UserModel.findOne({ username });
             if (existingEmail || existingUsername) {
-                return res.status(400).json({ message: 'Email or Username already exists' });
+                response.badRequest(res,'Email or Username already exists')
             }
             const hashedPassword = await bcrypt.hash(password, 10);
             const newUser = await new UserModel({
