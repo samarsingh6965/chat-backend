@@ -1,11 +1,12 @@
 import {UserRealtimeModel} from '../Models/index';
 import { Server } from "socket.io";
 import auth from './auth';
+import {ENV} from "../dotenv";
 import chat from './chat/chat';
 export default async(server:any)=>{
     const io = new Server(server, {
         cors: {
-            origin: ["http://localhost:3000"],
+            origin: [ENV.APP_SOCKET_CORS_URL],
         }
     });
     io.on('connection', async(socket: any) => {

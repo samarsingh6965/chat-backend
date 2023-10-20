@@ -12,7 +12,7 @@ export default {
             if (updatedUser.profileImage !== null) {
                 await updatedUser.populate('profileImage', { _id: 1, url: 1, mimetype: 1 });
             }
-            console.log(updatedUser)
+            // console.log(updatedUser)
             response.handleSuccess(res, updatedUser, 'Details Updated');
         } catch (error) {
             console.error(error);
@@ -104,7 +104,7 @@ export default {
         try {
             const Users = await UserModel.findOne({ _id, status: 'active' }, {
                 _id: 1,
-                name: 1,
+                name: 1,// Perform any cleanup or tasks needed when a client disconnects
                 profileImage: 1,
                 gender: 1,
                 username: 1,
