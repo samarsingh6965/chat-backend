@@ -11,7 +11,7 @@ export default {
             const existingEmail = await UserModel.findOne({ email });
             const existingUsername = await UserModel.findOne({ username });
             if (existingEmail || existingUsername) {
-                response.badRequest(res,'Email or Username already exists')
+                response.badRequest(res, 'Email or Username already exists')
             }
             const hashedPassword = await bcrypt.hash(password, 10);
             const newUser = await new UserModel({
@@ -54,11 +54,8 @@ export default {
                     const token = generateToken(User);
                     const userDetail = await UserModel.findOne(
                         { _id: User._id },
-                        { _id: 1, name: 1, email: 1, profileImage: 1, username: 1, gender: 1 ,bio:1}
+                        { _id: 1, name: 1, email: 1, profileImage: 1, username: 1, gender: 1, bio: 1 }
                     );
-                    if (userDetail.profileImage !== null) {
-                        await userDetail.populate('profileImage', { _id: 1, url: 1, mimetype: 1 });
-                    }
                     response.handleSuccess(res, { userDetail, token }, 'User LoggedIn.');
                 }
             }

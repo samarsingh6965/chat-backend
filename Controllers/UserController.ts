@@ -9,9 +9,6 @@ export default {
             const { _id } = req.body;
             const updatedUser = await UserModel.findByIdAndUpdate(_id, req.body, { new: true })
                 .select('_id name email profileImage username gender bio')
-            if (updatedUser.profileImage !== null) {
-                await updatedUser.populate('profileImage', { _id: 1, url: 1, mimetype: 1 });
-            }
             // console.log(updatedUser)
             response.handleSuccess(res, updatedUser, 'Details Updated');
         } catch (error) {
@@ -64,7 +61,7 @@ export default {
                 gender: 1,
                 username: 1,
                 bio: 1
-            }).populate('profileImage', { _id: 1, url: 1, mimetype: 1 });
+            });
             const lastMessages = await MessageModel.aggregate([
                 {
                     $match: {
@@ -110,9 +107,6 @@ export default {
                 username: 1,
                 bio: 1
             });
-            if (Users.profileImage) {
-                await Users.populate('profileImage', { _id: 1, url: 1, mimetype: 1 })
-            }
             response.handleSuccess(res, Users, 'Users Fetched');
         } catch (error) {
             console.error(error);

@@ -1,10 +1,8 @@
 import mongoose from 'mongoose';
-import { Hooks } from '../../DB/hooks';
 export default (connection: any) => {
     const schema = new connection.Schema({
         profileImage: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Media',
+            type: String,
             default: null,
         },
         username: { type: String, required: true },
@@ -25,7 +23,6 @@ export default (connection: any) => {
             default: 'active',
         },
     });
-    Hooks.mediaRef(schema, 'User', ['profileImage']);
     const UserModel = connection.model('User', schema);
     return UserModel;
 };
