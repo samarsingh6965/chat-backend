@@ -1,47 +1,53 @@
 import express, { Router } from 'express';
 import multer from 'multer';
 import { initializeApp } from 'firebase/app';
-import { getStorage, ref, getDownloadURL, uploadBytesResumable } from 'firebase/storage'
+import { getStorage, ref, getDownloadURL, uploadBytesResumable, deleteObject } from 'firebase/storage'
 import config from '../firebase.config';
-import ServerResponse from '../ServerResponse/ServerResponse'
+import ServerResponse from '../ServerResponse/ServerResponse';
 const response = new ServerResponse();
 const router: Router = express.Router();
-initializeApp(config)
-const firebase_storage = getStorage();
+const app = initializeApp(config)
+const firebase_storage = getStorage(app);
 const upload = multer({ storage: multer.memoryStorage() });
-// Configure Multer for file uploads
-// const storage = multer.diskStorage({
-//   destination: './uploads', // where to store the files
-//   filename: function (req, file, callback) {
-//     callback(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
-//   },
-// });
 
-
-// export default upload;
-router.post("/", upload.single('image'), async (req:any, res:any) => {
+router.post("/", upload.single('image'), async (req: any, res: any) => {
   try {
-      const dateTime = giveCurrentDateTime();
+    const dateTime = giveCurrentDateTime();
 
-      const storageRef = ref(firebase_storage, `uploads/${req.file.originalname + "       " + dateTime}`);
+    const storageRef = ref(firebase_storage, `uploads/${req.file.originalname + "       " + dateTime}`);
 
-      // Create file metadata including the content type
-      const metadata = {
-          contentType: req.file.mimetype,
-      };
+    const metadata = {
+      contentType: req.file.mimetype,
+    };
 
-      // Upload the file in the bucket storage
-      const snapshot = await uploadBytesResumable(storageRef, req.file.buffer, metadata);
-      //by using uploadBytesResumable we can control the progress of uploading like pause, resume, cancel
+    const uploadTask = uploadBytesResumable(storageRef, req.file.buffer, metadata);
 
-      // Grab the public url
-      const downloadURL = await getDownloadURL(snapshot.ref);
-      response.handleSuccess(res,
-        {name: req.file.originalname,
-        type: req.file.mimetype,
-        url: downloadURL},'File successfully uploaded.')
+    // Emit upload progress using Socket.IO
+    uploadTask.on("state_changed", (snapshot) => {
+      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+    });
+
+    const snapshot = await uploadTask;
+    const downloadURL = await getDownloadURL(snapshot.ref);
+
+    response.handleSuccess(res, {
+      name: req.file.originalname,
+      type: req.file.mimetype,
+      url: downloadURL
+    }, 'File successfully uploaded.');
   } catch (error) {
-      return res.status(400).send(error.message)
+    return res.status(400).send(error.message)
+  }
+});
+
+router.delete("/", async (req: any, res: any) => {
+  try {
+    const { downloadUrl } = req.body;
+    const deleteRef = ref(firebase_storage, downloadUrl);
+    const deletedImage = await deleteObject(deleteRef);
+    response.handleSuccess(res, deletedImage, 'File successfully deleted.')
+  } catch (error) {
+    return res.status(400).send(error.message)
   }
 });
 
