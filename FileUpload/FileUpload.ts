@@ -3,6 +3,7 @@ import multer from 'multer';
 import { initializeApp } from 'firebase/app';
 import { getStorage, ref, getDownloadURL, uploadBytesResumable, deleteObject } from 'firebase/storage'
 import config from '../firebase.config';
+import { Realtime } from '../Server'
 import ServerResponse from '../ServerResponse/ServerResponse';
 const response = new ServerResponse();
 const router: Router = express.Router();
@@ -12,29 +13,29 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 router.post("/", upload.single('image'), async (req: any, res: any) => {
   try {
-    const dateTime = giveCurrentDateTime();
-
-    const storageRef = ref(firebase_storage, `uploads/${req.file.originalname + "       " + dateTime}`);
-
-    const metadata = {
-      contentType: req.file.mimetype,
-    };
-
-    const uploadTask = uploadBytesResumable(storageRef, req.file.buffer, metadata);
-
-    // Emit upload progress using Socket.IO
-    uploadTask.on("state_changed", (snapshot) => {
-      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-    });
-
-    const snapshot = await uploadTask;
-    const downloadURL = await getDownloadURL(snapshot.ref);
-
-    response.handleSuccess(res, {
-      name: req.file.originalname,
-      type: req.file.mimetype,
-      url: downloadURL
-    }, 'File successfully uploaded.');
+    if (!isImage(req.file)) {
+      return response.badRequest(res, 'File type must be an image.');
+    } else if (req.file.size > 2 * 1024 * 1024) {
+      response.badRequest(res, 'Image size should not exceed 2 MB.');
+    } else {
+      const dateTime = giveCurrentDateTime();
+      const storageRef = ref(firebase_storage, `uploads/${req.file.originalname + "       " + dateTime}`);
+      const metadata = {
+        contentType: req.file.mimetype,
+      };
+      const uploadTask = uploadBytesResumable(storageRef, req.file.buffer, metadata);
+      uploadTask.on("state_changed", (snapshot) => {
+        const progress = parseInt(((snapshot.bytesTransferred / snapshot.totalBytes) * 100).toString());
+        Realtime._emit('upload_progress', progress, req.user.userId)
+      });
+      const snapshot = await uploadTask;
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      response.handleSuccess(res, {
+        name: req.file.originalname,
+        type: req.file.mimetype,
+        url: downloadURL
+      }, 'File successfully uploaded.');
+    }
   } catch (error) {
     return res.status(400).send(error.message)
   }
@@ -58,5 +59,7 @@ const giveCurrentDateTime = () => {
   const dateTime = date + ' ' + time;
   return dateTime;
 }
-
+const isImage = (file: any) => {
+  return file && file.mimetype.split('/')[0] === 'image';
+};
 export default router;

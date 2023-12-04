@@ -1,17 +1,24 @@
-import mongoose from 'mongoose';
+import { Socket } from 'socket.io';
 import { UserRealtimeModel, MessageModel, NotificationModel } from '../../Models';
-export default (socket: any, io: any) => {
+import { Realtime } from '../../Server'
+interface CustomSocket extends Socket {
+    userInfo: {
+        userId: string
+    } | any;
+}
+
+export default (socket: CustomSocket) => {
     socket.on('typing', async (data: any) => {
         let userto = await UserRealtimeModel.findOne({ userId: data.to }, { connectionId: 1, activeChat: 1 });
         if (userto.activeChat === data.from) {
-            io.to(userto.connectionId).emit('typing', data);
+            Realtime.to(userto.connectionId).emit('typing', data);
         }
         // console.log('typing', data, userto,userfrom);
     })
     socket.on('stop_typing', async (data: any) => {
         let userto = await UserRealtimeModel.findOne({ userId: data.to }, { connectionId: 1, activeChat: 1 });
         if (userto.activeChat === data.from) {
-            io.to(userto.connectionId).emit('stop_typing', socket.userInfo._id);
+            Realtime.to(userto.connectionId).emit('stop_typing', socket.userInfo._id);
         }
         // console.log('stop_typing', data, userto,userfrom);
     })
@@ -19,7 +26,7 @@ export default (socket: any, io: any) => {
         let userto = await UserRealtimeModel.findOne({ userId: data.to }, { connectionId: 1, activeChat: 1 });
         let newMessage = await new MessageModel(data).save();
         if (userto.activeChat === data.from) {
-            io.to(userto.connectionId).emit('message', newMessage);
+            Realtime.to(userto.connectionId).emit('message', newMessage);
         } else {
             let d = await NotificationModel.findOneAndUpdate(
                 {
@@ -31,8 +38,8 @@ export default (socket: any, io: any) => {
                     seen: false
                 },
                 { new: true, upsert: true }
-            ).populate('from',{name:1}).populate('lastMessage',{message:1});
-            io.to(userto.connectionId).emit('notification', d);
+            ).populate('from', { name: 1 }).populate('lastMessage', { message: 1 });
+            Realtime.to(userto.connectionId).emit('notification', d);
             // console.log('notification',d);
         }
     })
