@@ -54,7 +54,7 @@ export default {
                     const token = generateToken(User);
                     const userDetail = await UserModel.findOne(
                         { _id: User._id },
-                        { _id: 1, name: 1, email: 1, profileImage: 1, username: 1, gender: 1, bio: 1 }
+                        { _id: 1, name: 1, email: 1, profileImage: 1, username: 1, gender: 1, bio: 1,block_list:1 }
                     );
                     response.handleSuccess(res, { userDetail, token }, 'User LoggedIn.');
                 }

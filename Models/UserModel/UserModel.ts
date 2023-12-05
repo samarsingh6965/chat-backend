@@ -7,11 +7,19 @@ export default (connection: any) => {
         },
         username: { type: String, required: true },
         name: { type: String, required: true },
-        bio: { type: String, default:"Hey there! I'm using Chatsapp." },
+        bio: { type: String, default: "Hey there! I'm using Chatsapp." },
         gender: {
             type: String,
             required: true,
             enum: ['male', 'female', 'other'],
+        },
+        block_list: {
+            type: [{
+                type: mongoose.Types.ObjectId,
+                ref: "User",
+                require: false
+            }],
+            default: []
         },
         email: { type: String, required: true },
         password: { type: String, required: true },

@@ -4,4 +4,7 @@ import UserController from "../Controllers/UserController";
 UserRouter.put('/editPersnolDetail', UserController.editPersnolDetail);
 UserRouter.get('/getUsers', UserController.getUsers);
 UserRouter.get('/getUserByUserId', UserController.getUserByUserId);
+UserRouter.put('/editPassword', UserController.editPassword);
+UserRouter.put('/addToBlockList', UserController.addToBlockList);
+UserRouter.put('/removeFromBlockList', UserController.removeFromBlockList);
 export default UserRouter;
