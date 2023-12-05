@@ -3,6 +3,7 @@ import { UserModel, MessageModel } from "../Models/index";
 import bcrypt from 'bcrypt'
 import ServerResponseClass from "../ServerResponse/ServerResponse";
 const response = new ServerResponseClass();
+import { Realtime } from '../Server'
 
 export default {
     editPersnolDetail: async (req: any, res: any) => {
@@ -143,7 +144,8 @@ export default {
                 user.block_list.push(userId);
                 user.modified_at = Date.now();
                 await user.save();
-                const upDated = await UserModel.findById(_id, { _id: 1, name: 1, email: 1, profileImage: 1, username: 1, gender: 1, bio: 1, block_list: 1 })
+                Realtime.emit("blocked", "blocked");
+                const upDated = await UserModel.findById(_id, { _id: 1, name: 1, email: 1, profileImage: 1, username: 1, gender: 1, bio: 1, block_list: 1 });
                 response.handleSuccess(res, upDated, 'Blocked.');
             } else {
                 response.badRequest(res, 'Already Blocked.');
@@ -160,7 +162,8 @@ export default {
             user.block_list.splice(index, 1);
             user.modified_at = Date.now();
             await user.save();
-            const upDated = await UserModel.findById(_id, { _id: 1, name: 1, email: 1, profileImage: 1, username: 1, gender: 1, bio: 1, block_list: 1 })
+            Realtime.emit("unblocked", "unblocked");
+            const upDated = await UserModel.findById(_id, { _id: 1, name: 1, email: 1, profileImage: 1, username: 1, gender: 1, bio: 1, block_list: 1 });
             response.handleSuccess(res, upDated, "Unblocked.")
         } catch (error) {
             return { success: false, message: error.message };
