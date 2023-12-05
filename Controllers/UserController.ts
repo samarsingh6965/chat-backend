@@ -99,7 +99,7 @@ export default {
     getUserByUserId: async (req: any, res: any) => {
         const { _id } = req.query;
         try {
-            const Users = await UserModel.findOne({ _id, status: 'active' }, {
+            const User = await UserModel.findOne({ _id, status: 'active' }, {
                 _id: 1,
                 name: 1,// Perform any cleanup or tasks needed when a client disconnects
                 profileImage: 1,
@@ -107,7 +107,20 @@ export default {
                 username: 1,
                 bio: 1
             });
-            response.handleSuccess(res, Users, 'Users Fetched');
+            response.handleSuccess(res, User, 'Users Fetched');
+        } catch (error) {
+            console.error(error);
+            response.somethingWentWrong(res);
+        }
+    },
+    editPassword: async (req: any, res: any) => {
+        const { _id } = req.query;
+        try {
+            const User = await UserModel.findOne({ _id, status: 'active' }, {
+                _id: 1,
+                password:1
+            });
+            response.handleSuccess(res, User, 'Password updated successfully.');
         } catch (error) {
             console.error(error);
             response.somethingWentWrong(res);
