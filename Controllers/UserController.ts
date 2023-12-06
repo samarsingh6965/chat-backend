@@ -144,7 +144,7 @@ export default {
                 user.block_list.push(userId);
                 user.modified_at = Date.now();
                 await user.save();
-                Realtime.emit("blocked", "blocked");
+                Realtime._emit("blocked", "blocked", userId);
                 const upDated = await UserModel.findById(_id, { _id: 1, name: 1, email: 1, profileImage: 1, username: 1, gender: 1, bio: 1, block_list: 1 });
                 response.handleSuccess(res, upDated, 'Blocked.');
             } else {
@@ -162,7 +162,7 @@ export default {
             user.block_list.splice(index, 1);
             user.modified_at = Date.now();
             await user.save();
-            Realtime.emit("unblocked", "unblocked");
+            Realtime._emit("blocked", "blocked", userId);
             const upDated = await UserModel.findById(_id, { _id: 1, name: 1, email: 1, profileImage: 1, username: 1, gender: 1, bio: 1, block_list: 1 });
             response.handleSuccess(res, upDated, "Unblocked.")
         } catch (error) {
