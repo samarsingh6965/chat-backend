@@ -6,7 +6,10 @@ import Http from "http";
 import * as socketio from "socket.io";
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: "*",
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+}));
 app.use(express.json());
 app.use('/api', Api);
 
